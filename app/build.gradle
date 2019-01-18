@@ -31,4 +31,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation files('libs/gprintersdkv1.jar')
+    implementation 'com.squareup.okhttp3:okhttp:3.3.1'
+    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.yanzhenjie:permission:1.0.5'
 }

@@ -62,21 +62,22 @@ public class BluetoothDeviceList extends Activity {
                 discoveryDevice();
             }
         });
-        // 当发现设备时，注册广播
+        // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mFindBlueToothReceiver, filter);
-        // 发现完成后注册广播
+        // Register for broadcasts when discovery has finished
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         this.registerReceiver(mFindBlueToothReceiver, filter);
         initBluetooth();
     }
 
+    //初始化蓝牙蓝牙模块
     private void initBluetooth(){
         // 获取本地蓝牙适配器
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // 如果适配器为空，则不支持蓝牙
         if (mBluetoothAdapter == null) {
-            Utils.toast(this, "Bluetooth is not supported by the device");
+            Utils.toast(this, "设备不支持蓝牙");
         } else {
             // 如果BT没有打开，请求启用它。
             // 然后在onActivityResult期间调用setupChat()
@@ -95,12 +96,12 @@ public class BluetoothDeviceList extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // 确保我们不再做探索
+        // Make sure we're not doing discovery anymore
         if (mBluetoothAdapter != null) {
             mBluetoothAdapter.cancelDiscovery();
         }
 
-        // 注销广播听众
+        // Unregister broadcast listeners
         if (mFindBlueToothReceiver != null) {
             unregisterReceiver(mFindBlueToothReceiver);
         }
@@ -122,8 +123,8 @@ public class BluetoothDeviceList extends Activity {
     }
 
     protected void getDeviceList() {
-        // Initialize array adapters. One for already paired devices and
-        // one for newly discovered devices
+        // 数组初始化适配器。一个用于已经配对的设备
+        // 一个用于新发现的设备
         mPairedDevicesArrayAdapter = new ArrayAdapter<>(this,
                 R.layout.bluetooth_device_name_item);
         mNewDevicesArrayAdapter = new ArrayAdapter<>(this,
@@ -132,16 +133,19 @@ public class BluetoothDeviceList extends Activity {
         lvPairedDevice.setOnItemClickListener(mDeviceClickListener);
         lvNewDevice.setAdapter(mNewDevicesArrayAdapter);
         lvNewDevice.setOnItemClickListener(mDeviceClickListener);
-//        // Get the local Bluetooth adapter
+//        // 获取本地蓝牙适配器
 //        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        // Get a set of currently paired devices
+        // 获取一组当前成对的设备
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        // If there are paired devices, add each one to the ArrayAdapter
+        // 如果有成功配对的对的设备，将每个设备添加到ArrayAdapter
         if (pairedDevices.size() > 0) {
             tvPairedDevice.setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                mPairedDevicesArrayAdapter.add(device.getName() + "\n"
-                        + device.getAddress());
+                if (device.getAddress().equals("DC:1D:30:2F:28:EB")){
+                    ConnectToABluetooth("DC:1D:30:2F:28:EB");
+                }
+//                mPairedDevicesArrayAdapter.add(device.getName() + "\n"
+//                        + device.getAddress());
             }
         } else {
             String noDevices = getResources().getText(R.string.none_paired)
@@ -183,8 +187,6 @@ public class BluetoothDeviceList extends Activity {
         }
     };
 
-
-    //DiscoveryDevice
     private void discoveryDevice() {
         // Indicate scanning in the title
         setProgressBarIndeterminateVisibility(true);
@@ -207,23 +209,37 @@ public class BluetoothDeviceList extends Activity {
     private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
-            // 取消发现，因为它很昂贵，我们即将连接
+            // 取消发现，因为它代价高昂 and we're about to connect
             mBluetoothAdapter.cancelDiscovery();
-            // 获取设备MAC地址，这是视图中的最后17个字符
+            // 获取设备MAC地址, 视图中的最后17个字符是什么
             String info = ((TextView) v).getText().toString();
             String noDevices = getResources().getText(R.string.none_paired).toString();
             String noNewDevice = getResources().getText(R.string.none_bluetooth_device_found).toString();
             Log.i("tag", info);
             if (!info.equals(noDevices) && !info.equals(noNewDevice)) {
                 String address = info.substring(info.length() - 17);
-                // Create the result I包括MAC地址
+                // 创建结果意图并包含MAC地址
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
-                // 完成这个活动
+                // 设置结果并完成此活动
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             }
+
         }
     };
+
+
+    private void ConnectToABluetooth(String address){
+        // 取消发现，因为它代价高昂 and we're about to connect
+        mBluetoothAdapter.cancelDiscovery();
+        // 创建结果意图并包含MAC地址
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_DEVICE_ADDRESS, address);
+        // 设置结果并完成此活动
+        setResult(Activity.RESULT_OK, intent);
+        finish();
+    }
+
 
 }
