@@ -20,13 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="12dp"
-        android:text="@string/str_conn_state_disconnect"
+        android:text=""
         android:textSize="14sp" />
 
-    <Button
-        android:onClick="PrintDemo"
-        android:text="打印"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 
 </LinearLayout>

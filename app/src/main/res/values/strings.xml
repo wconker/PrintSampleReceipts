@@ -4,10 +4,10 @@
     <string name="title_other_devices">New</string>
     <string name="scan">Scan</string>
     <string name="bluetooth_device_list">Bluetooth device list</string>
-    <string name="select_bluetooth_device">select bluetooth device</string>
-    <string name="none_bluetooth_device_found">none bluetooth device found</string>
-    <string name="none_paired">none paired</string>
-    <string name="scaning">scaning</string>
+    <string name="select_bluetooth_device">选择蓝牙设备</string>
+    <string name="none_bluetooth_device_found">蓝牙设备未找到</string>
+    <string name="none_paired">没有配对的</string>
+    <string name="scaning">扫描......</string>
     <string name="usb_devices_list">USB devices list</string>
     <string name="none_usb_device">none usb device connected</string>
 
@@ -19,16 +19,16 @@
         <item>115200</item>
     </string-array>
     <string name="str_no_serialport">Do not support serial port</string>
-    <string name="str_conn_state_disconnect">Connection state: unconnected</string>
-    <string name="str_conn_state_connecting">Connection state: connecting</string>
+    <string name="str_conn_state_disconnect">连接状态: 无法连接</string>
+    <string name="str_conn_state_connecting">连接状态: 连接中</string>
     <string name="str_connecting">connecting</string>
-    <string name="str_conn_state_connected">Connection state: connected</string>
-    <string name="str_wifi_ip">Please enter IP:</string>
+    <string name="str_conn_state_connected">连接状态:连接</string>
+    <string name="str_wifi_ip">请输入IP:</string>
     <string name="str_ip">IP: </string>
     <string name="str_port">Port: </string>
-    <string name="str_wifi_port">Please enter the port:</string>
+    <string name="str_wifi_port">请进港:</string>
     <string name="str_state_query">State query</string>
-    <string name="str_disconnect">Disconnect</string>
+    <string name="str_disconnect">断开连接</string>
     <string name="str_label_print">Label print</string>
     <string name="str_receipt_print">Receipt print</string>
     <string name="str_bluetooth_connect">Bluetooth</string>
@@ -37,13 +37,13 @@
     <string name="str_serialport_connect">Serial port</string>
     <string name="str_confirm">Confirm</string>
     <string name="str_cancel">Cancel</string>
-    <string name="str_cann_printer">Please connect the printer first</string>
+    <string name="str_cann_printer">请先连接打印机</string>
     <string name="str_bluetooth">Bluetooth</string>
     <string name="str_serialport">Serial port</string>
     <string name="str_usb">USB</string>
     <string name="str_wifi">WIFI</string>
-    <string name="str_conn_successful">The connection is successful!</string>
-    <string name="str_conn_fail">The connection failed!</string>
+    <string name="str_conn_successful">连接成功!</string>
+    <string name="str_conn_fail">连接失败了!</string>
     <string name="str_baudrate">Baud rate:</string>
     <string name="str_serialport_path">Serial port path:</string>
     <string name="str_conn_devices">Multi-devices</string>
@@ -63,7 +63,7 @@
     <string name="port">Interface: not set</string>
     <string name="init_port_info">Address: unknown</string>
     <string name="str_enter_print_counts">Please enter the number of Prints:</string>
-    <string name="str_choice_printer_command">Please select the correct printer instructions</string>
+    <string name="str_choice_printer_command">请选择正确的打印机说明</string>
     <string name="str_printer_conn_normal">Printer connected normal</string>
     <string name="str_printer_out_of_paper">Printer out of paper</string>
     <string name="str_printer_open_cover">Printer open cover</string>
@@ -71,7 +71,7 @@
     <string name="str_state">State: </string>
     <string name="str_interface_undefine">Interface: Undefine</string>
     <string name="str_select_printer_id">Select a printer with a ID of {0}</string>
-    <string name="bluetooth_is_not_enabled">bluetooth is not enabled</string>
+    <string name="bluetooth_is_not_enabled">蓝牙未启用</string>
     <string-array name="str_interf_type">
         <item>Bluetooth</item>
         <item>Ethernet</item>

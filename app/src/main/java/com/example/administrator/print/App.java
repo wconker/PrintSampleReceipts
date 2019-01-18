@@ -7,8 +7,8 @@ import android.content.Context;
  * Created by Administrator
  *
  * @author 猿史森林
- *         Date: 2017/11/28
- *         Class description:
+ * Date: 2017/11/28
+ * Class description:
  */
 public class App extends Application {
 
@@ -18,6 +18,11 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
+    }
+
+
+    public static void setContext(Context context) {
+        mContext = context;
     }
 
     public static Context getContext() {

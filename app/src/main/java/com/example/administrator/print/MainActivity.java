@@ -65,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tvConnState = (TextView) findViewById(R.id.tv_connState);
+        AndPermission.with(MainActivity.this)
+                .permission(new String[]{Manifest.permission.BLUETOOTH,Manifest.permission.BLUETOOTH_PRIVILEGED,Manifest.permission.BLUETOOTH_ADMIN,Manifest.permission.ACCESS_COARSE_LOCATION})
+                .requestCode(14000)
+                .send();
     }
 
     @Override
@@ -95,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+
+
         IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
         filter.addAction(ACTION_USB_DEVICE_DETACHED);
         filter.addAction(ACTION_QUERY_PRINTER_STATE);
