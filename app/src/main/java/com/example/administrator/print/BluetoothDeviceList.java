@@ -21,6 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 public class BluetoothDeviceList extends Activity {
@@ -40,8 +42,8 @@ public class BluetoothDeviceList extends Activity {
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
     public static final String EXTRA_DEVICE_ADDRESS = "address";
-    public static final int    REQUEST_ENABLE_BT      = 2;
-    public static final int    REQUEST_CONNECT_DEVICE = 3;
+    public static final int REQUEST_ENABLE_BT = 2;
+    public static final int REQUEST_CONNECT_DEVICE = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +74,7 @@ public class BluetoothDeviceList extends Activity {
     }
 
     //初始化蓝牙蓝牙模块
-    private void initBluetooth(){
+    private void initBluetooth() {
         // 获取本地蓝牙适配器
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // 如果适配器为空，则不支持蓝牙
@@ -141,7 +143,7 @@ public class BluetoothDeviceList extends Activity {
         if (pairedDevices.size() > 0) {
             tvPairedDevice.setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                if (device.getAddress().equals("DC:1D:30:2F:28:EB")){
+                if (device.getAddress().equals("DC:1D:30:2F:28:EB")) {
                     ConnectToABluetooth("DC:1D:30:2F:28:EB");
                 }
 //                mPairedDevicesArrayAdapter.add(device.getName() + "\n"
@@ -230,7 +232,23 @@ public class BluetoothDeviceList extends Activity {
     };
 
 
-    private void ConnectToABluetooth(String address){
+    //手动配对
+    private void PairedDevice(BluetoothDevice device) {
+
+
+        try {
+            Method pair = BluetoothDevice.class.getMethod("createBond");
+            pair.invoke(device);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void ConnectToABluetooth(String address) {
         // 取消发现，因为它代价高昂 and we're about to connect
         mBluetoothAdapter.cancelDiscovery();
         // 创建结果意图并包含MAC地址

@@ -278,6 +278,12 @@ public class PrintHelper {
         if (DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id] == null) {
             return;
         }
+
+        /*
+
+       点击蓝牙传入mac地址时，调用sdk中的openPort方法，里面完成了蓝牙的连接操作，也就是BluetoothServerSocket
+        发送时调用 sendDataImmediately 采用输出流 outputstream 把流推到打印机里
+         */
         DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].sendDataImmediately(datas);
 
     }
