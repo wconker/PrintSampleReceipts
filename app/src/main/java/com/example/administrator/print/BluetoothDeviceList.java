@@ -23,6 +23,8 @@ import android.widget.Toast;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class BluetoothDeviceList extends Activity {
@@ -142,12 +144,13 @@ public class BluetoothDeviceList extends Activity {
         // 如果有成功配对的对的设备，将每个设备添加到ArrayAdapter
         if (pairedDevices.size() > 0) {
             tvPairedDevice.setVisibility(View.VISIBLE);
+            //检测到有连接过的设备直接选择
             for (BluetoothDevice device : pairedDevices) {
-                if (device.getAddress().equals("DC:1D:30:2F:28:EB")) {
-                    ConnectToABluetooth("DC:1D:30:2F:28:EB");
+                if (device.getAddress().equals(SharedPreferencesUtil.getMac())) {
+                    ConnectToABluetooth(SharedPreferencesUtil.getMac());
                 }
-//                mPairedDevicesArrayAdapter.add(device.getName() + "\n"
-//                        + device.getAddress());
+                mPairedDevicesArrayAdapter.add(device.getName() + "\n"
+                        + device.getAddress());
             }
         } else {
             String noDevices = getResources().getText(R.string.none_paired)
@@ -155,6 +158,9 @@ public class BluetoothDeviceList extends Activity {
             mPairedDevicesArrayAdapter.add(noDevices);
         }
     }
+
+
+    private List<BluetoothDevice> devicesList = new ArrayList<>();
 
     /**
      * 在发现完成时更改标题
@@ -173,6 +179,7 @@ public class BluetoothDeviceList extends Activity {
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
                     mNewDevicesArrayAdapter.add(device.getName() + "\n"
                             + device.getAddress());
+                    devicesList.add(device);
                 }
                 // When discovery is finished, change the Activity title
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED
@@ -218,6 +225,9 @@ public class BluetoothDeviceList extends Activity {
             String noDevices = getResources().getText(R.string.none_paired).toString();
             String noNewDevice = getResources().getText(R.string.none_bluetooth_device_found).toString();
             Log.i("tag", info);
+
+            //   PairedDevice(devicesList.get(arg2));
+
             if (!info.equals(noDevices) && !info.equals(noNewDevice)) {
                 String address = info.substring(info.length() - 17);
                 // 创建结果意图并包含MAC地址
@@ -238,7 +248,8 @@ public class BluetoothDeviceList extends Activity {
 
         try {
             Method pair = BluetoothDevice.class.getMethod("createBond");
-            pair.invoke(device);
+            Boolean isPairs = (Boolean) pair.invoke(device);
+            Log.e("Conker", isPairs + "");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -248,6 +259,7 @@ public class BluetoothDeviceList extends Activity {
         }
     }
 
+    //有配对过的直接连接
     private void ConnectToABluetooth(String address) {
         // 取消发现，因为它代价高昂 and we're about to connect
         mBluetoothAdapter.cancelDiscovery();

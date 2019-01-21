@@ -41,19 +41,19 @@ public class PrintHelper {
      */
     private byte[] tsc = {0x1b, '!', '?'};
 
-    private  final int CONN_MOST_DEVICES = 0x11;
-    private  final int CONN_PRINTER = 0x12;
+    private final int CONN_MOST_DEVICES = 0x11;
+    private final int CONN_PRINTER = 0x12;
 
-    private  final int REQUEST_CODE = 0x004;
+    private final int REQUEST_CODE = 0x004;
 
     /**
      * 连接状态断开
      */
-    private  final int CONN_STATE_DISCONN = 0x007;
+    private final int CONN_STATE_DISCONN = 0x007;
     /**
      * 使用打印机指令错误
      */
-    private  final int PRINTER_COMMAND_ERROR = 0x008;
+    private final int PRINTER_COMMAND_ERROR = 0x008;
 
 
     /**
@@ -85,11 +85,12 @@ public class PrintHelper {
                 //Usb连接断开、蓝牙连接断开广播
                 case ACTION_USB_DEVICE_DETACHED:
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-                    //mHandler.obtainMessage(CONN_STATE_DISCONN).sendToTarget();
+                    mHandler.obtainMessage(CONN_STATE_DISCONN).sendToTarget();
                     break;
                 case DeviceConnFactoryManager.ACTION_CONN_STATE:
                     //获得广播回调的打印机状态
                     int state = intent.getIntExtra(DeviceConnFactoryManager.STATE, -1);
+                    Log.e("Conker", "onReceive: " + state);
                     int deviceId = intent.getIntExtra(DeviceConnFactoryManager.DEVICE_ID, -1);
                     switch (state) {
                         case DeviceConnFactoryManager.CONN_STATE_DISCONNECT:
@@ -104,7 +105,8 @@ public class PrintHelper {
                             break;
                         case DeviceConnFactoryManager.CONN_STATE_CONNECTED:
                             Toast.makeText(mContext, mContext.getString(R.string.str_conn_state_connected), Toast.LENGTH_SHORT).show();
-
+                            DeviceConnFactoryManager deviceConnFactoryManager1 = DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id];
+                            SharedPreferencesUtil.setMac(deviceConnFactoryManager1.getMacAddress());
                             Log.e("Conker", "蓝牙id=" + id + ";" + getConnDeviceInfo());
 
                             break;
@@ -133,7 +135,7 @@ public class PrintHelper {
      * @param h   转换后的高
      * @return
      */
-    public  Bitmap convertToBMW(Bitmap bmp, int w, int h) {
+    public Bitmap convertToBMW(Bitmap bmp, int w, int h) {
         int width = bmp.getWidth(); // 获取位图的宽
         int height = bmp.getHeight(); // 获取位图的高
         int[] pixels = new int[width * height]; // 通过位图的大小创建像素点数组
@@ -181,15 +183,15 @@ public class PrintHelper {
         return resizeBmp;
     }
 
-    private OrderDetailBean.DataBean converTobean(String str){
+    private OrderDetailBean.DataBean converTobean(String str) {
         Gson gson = new Gson();
         OrderDetailBean orderDetailBean = gson.fromJson(str, OrderDetailBean.class);
         return orderDetailBean.getData();
     }
 
-    public void GSSReceipts( String s, String printName, String printMoible) {
+    public void GSSReceipts(String s, String printName, String printMoible) {
 
-        OrderDetailBean.DataBean dataBean=converTobean(s);
+        OrderDetailBean.DataBean dataBean = converTobean(s);
 
         EscCommand esc = new EscCommand();
         esc.addInitializePrinter();
@@ -210,11 +212,11 @@ public class PrintHelper {
         esc.addPrintAndLineFeed();
 
         esc.addText("商户名称：" + dataBean.getShopEntityName() + "\n");
-        esc.addText("联系人：" + dataBean.getCustomName() + " " +  dataBean.getCustomMobile() +  "\n");
-        esc.addText("订单编号："+ dataBean.getOrderCode() + "\n");
-        esc.addText("下单时间："+ dataBean.getCreateTime() + "\n");
-        esc.addText("配货时间："+ dataBean.getSendTime() + "\n");
-        esc.addText("收货时间："+ dataBean.getReceiveTime() + "\n");
+        esc.addText("联系人：" + dataBean.getCustomName() + " " + dataBean.getCustomMobile() + "\n");
+        esc.addText("订单编号：" + dataBean.getOrderCode() + "\n");
+        esc.addText("下单时间：" + dataBean.getCreateTime() + "\n");
+        esc.addText("配货时间：" + dataBean.getSendTime() + "\n");
+        esc.addText("收货时间：" + dataBean.getReceiveTime() + "\n");
         esc.addText("支付方式：" + dataBean.getPayName() + "\n");
         esc.addText("备注：" + dataBean.getNote() + "\n");
         esc.addText("\r\n");
@@ -265,7 +267,7 @@ public class PrintHelper {
         esc.addPrintAndFeedLines((byte) 1);
 
         esc.addText("打单时间:" + getNowDate() + "\n");
-        esc.addText("打单人:" + printName + "(" + printMoible+ ")" + "\n");
+        esc.addText("打单人:" + printName + "(" + printMoible + ")" + "\n");
 
         //打印并走纸5行
         esc.addPrintAndFeedLines((byte) 5);
@@ -290,6 +292,7 @@ public class PrintHelper {
 
     /**
      * 集合数据拼接
+     *
      * @param mList
      * @return
      */
@@ -356,6 +359,7 @@ public class PrintHelper {
 
     /**
      * 时间格式转换
+     *
      * @return
      */
     public static String getNowDate() {
@@ -388,7 +392,7 @@ public class PrintHelper {
         }
     }
 
-    public  void PrintDemo(final String dataBean, final String printName, final String printMoible) {
+    public void PrintDemo(final String dataBean, final String printName, final String printMoible) {
         threadPool = ThreadPool.getInstantiation();
         threadPool.addTask(new Runnable() {
             @Override
@@ -399,7 +403,7 @@ public class PrintHelper {
                     return;
                 }
                 if (DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].getCurrentPrinterCommand() == PrinterCommand.ESC) {
-                   GSSReceipts(dataBean,printName,printMoible);
+                    GSSReceipts(dataBean, printName, printMoible);
                 } else {
                     mHandler.obtainMessage(PRINTER_COMMAND_ERROR).sendToTarget();
                 }
@@ -415,6 +419,7 @@ public class PrintHelper {
                 case CONN_STATE_DISCONN://关闭打印机
                     if (DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id] != null) {
                         DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].closePort(id);
+                        myDestroy();
                     }
                     break;
                 case PRINTER_COMMAND_ERROR:
@@ -489,5 +494,47 @@ public class PrintHelper {
         filter.addAction(ACTION_QUERY_PRINTER_STATE);
         filter.addAction(DeviceConnFactoryManager.ACTION_CONN_STATE);
         mContext.registerReceiver(receiver, filter);
+    }
+
+
+    /**
+     * 发送票据
+     */
+    public void sendReceiptWithResponse() {
+        EscCommand esc = new EscCommand();
+
+        /* 绝对位置 具体详细信息请查看GP58编程手册 */
+        esc.addText("智汇");
+        esc.addSetHorAndVerMotionUnits((byte) 7, (byte) 0);
+        esc.addSetAbsolutePrintPosition((short) 6);
+        esc.addText("网络");
+        esc.addSetAbsolutePrintPosition((short) 10);
+        esc.addText("设备");
+        esc.addPrintAndLineFeed();
+
+
+        // 加入查询打印机状态，打印完成后，此时会接收到GpCom.ACTION_DEVICE_STATUS广播
+        esc.addQueryPrinterStatus();
+        Vector<Byte> datas = esc.getCommand();
+
+        if (DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id] == null) {
+            return;
+        }
+        // 发送数据
+        DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].sendDataImmediately(datas);
+
+    }
+
+
+    public void myDestroy(){
+        if (mHandler!=null){
+            mHandler.removeCallbacksAndMessages(null);
+            id=0;
+
+        }
+    }
+
+    public void close(){
+        mHandler.obtainMessage(CONN_STATE_DISCONN).sendToTarget();
     }
 }
