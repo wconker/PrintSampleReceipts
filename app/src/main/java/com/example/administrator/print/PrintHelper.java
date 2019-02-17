@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.media.ThumbnailUtils;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -20,6 +21,12 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.gprinter.command.EscCommand;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +40,15 @@ import static com.example.administrator.print.DeviceConnFactoryManager.ACTION_QU
 import static com.example.administrator.print.DeviceConnFactoryManager.CONN_STATE_FAILED;
 
 public class PrintHelper {
+
+
+    public void setLoadingInterface(LoadingInterface loadingInterface) {
+        this.loadingInterface = loadingInterface;
+    }
+
+    private LoadingInterface loadingInterface;
+
+
     private final Context mContext;
     private int id = 0;
     private ThreadPool threadPool;
@@ -100,10 +116,12 @@ public class PrintHelper {
                             break;
                         case DeviceConnFactoryManager.CONN_STATE_CONNECTING:
 
-                            Toast.makeText(mContext, mContext.getString(R.string.str_conn_state_connecting), Toast.LENGTH_SHORT).show();
-
                             break;
                         case DeviceConnFactoryManager.CONN_STATE_CONNECTED:
+
+                            if (loadingInterface != null) {
+                                loadingInterface.stopLoading();
+                            }
                             Toast.makeText(mContext, mContext.getString(R.string.str_conn_state_connected), Toast.LENGTH_SHORT).show();
                             DeviceConnFactoryManager deviceConnFactoryManager1 = DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id];
                             SharedPreferencesUtil.setMac(deviceConnFactoryManager1.getMacAddress());
@@ -111,6 +129,10 @@ public class PrintHelper {
 
                             break;
                         case CONN_STATE_FAILED:
+
+                            if (loadingInterface != null) {
+                                loadingInterface.stopLoading();
+                            }
 
                             Toast.makeText(mContext, mContext.getString(R.string.str_conn_fail), Toast.LENGTH_SHORT).show();
 
@@ -140,7 +162,7 @@ public class PrintHelper {
         int height = bmp.getHeight(); // 获取位图的高
         int[] pixels = new int[width * height]; // 通过位图的大小创建像素点数组
         // 设定二值化的域值，默认值为100
-        int tmp = 88;
+        int tmp = 100;
         bmp.getPixels(pixels, 0, width, 0, 0, width, height);
         int alpha = 0xFF << 24;
         for (int i = 0; i < height; i++) {
@@ -261,8 +283,8 @@ public class PrintHelper {
         esc.addSelectJustification(EscCommand.JUSTIFICATION.CENTER);
         //打印图片
         Bitmap erCode = convertToBMW(BitmapFactory.decodeResource(mContext.getResources(),
-                R.mipmap.pictur), 300, 150);
-        esc.addOriginRastBitImage(erCode, 300, 0);
+                R.mipmap.pic), 380, 190);
+        esc.addOriginRastBitImage(erCode, 380, 0);
         //打印并走纸1行
         esc.addPrintAndFeedLines((byte) 1);
 
@@ -289,6 +311,52 @@ public class PrintHelper {
         DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].sendDataImmediately(datas);
 
     }
+
+    /**
+     * 网络请求接口，获取二维码图片
+     *
+     * @return BMP版
+     */
+    private Bitmap interPicture() {
+        final Bitmap[] bm = {null};
+        final File file = new File(Environment.getExternalStorageDirectory(), "erweima.bmp");
+        if (file.exists()) {
+            bm[0] = BitmapFactory.decodeFile(file.getAbsolutePath());
+        } else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        URL url = new URL("http://app.guoss.cn/app_qr/ios_android.bmp");
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setConnectTimeout(5000);
+                        conn.setRequestMethod("GET");
+                        int code = conn.getResponseCode();
+                        if (code == 200) {
+                            InputStream is = conn.getInputStream();
+                            FileOutputStream fos = new FileOutputStream(file);
+                            int len = -1;
+                            byte[] buffer = new byte[1024];
+                            while ((len = is.read(buffer)) != -1) {
+                                fos.write(buffer, 0, len);
+                            }
+                            is.close();
+                            fos.close();
+                            bm[0] = BitmapFactory.decodeFile(file.getAbsolutePath());
+                        } else {
+                            Log.e("print", "图片获取失败");
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.e("print", "连接网络失败");
+                    }
+                }
+            }).start();
+        }
+        return bm[0];
+    }
+
 
     /**
      * 集合数据拼接
@@ -370,10 +438,17 @@ public class PrintHelper {
 
 
     public void onResultDeal(int requestCode, int resultCode, Intent data) {
+
+
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 /*蓝牙连接*/
                 case Constant.BLUETOOTH_REQUEST_CODE: {
+
+                    if (loadingInterface != null) {
+                        loadingInterface.startLoading();
+                    }
+
                     /*获取蓝牙mac地址*/
                     String macAddress = data.getStringExtra(BluetoothDeviceList.EXTRA_DEVICE_ADDRESS);
                     //初始化话DeviceConnFactoryManager
@@ -384,11 +459,16 @@ public class PrintHelper {
                             //设置连接的蓝牙mac地址
                             .setMacAddress(macAddress)
                             .build();
-                    //打开端口
-                    DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort();
+                    if (DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].getConnState()) {
+                        Toast.makeText(mContext, "打印已连接", Toast.LENGTH_SHORT).show();
+                    } else {
+                        //打开端口
+                        DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort();
+                    }
                     break;
                 }
             }
+
         }
     }
 
@@ -450,6 +530,10 @@ public class PrintHelper {
                             DeviceConnFactoryManager.getDeviceConnFactoryManagers()[id].openPort();
                         }
                     });
+
+
+
+
                     break;
                 default:
                     break;
@@ -526,15 +610,19 @@ public class PrintHelper {
     }
 
 
-    public void myDestroy(){
-        if (mHandler!=null){
+    public void myDestroy() {
+        if (mHandler != null) {
             mHandler.removeCallbacksAndMessages(null);
-            id=0;
+            id = 0;
 
         }
     }
 
-    public void close(){
+    public void close() {
         mHandler.obtainMessage(CONN_STATE_DISCONN).sendToTarget();
     }
+
+
+
+
 }

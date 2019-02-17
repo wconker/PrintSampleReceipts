@@ -13,7 +13,15 @@
         android:onClick="Blt"
         android:text="连接" />
 
-
+<Button
+    android:onClick="print"
+    android:text="打印"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" /><Button
+    android:onClick="close"
+    android:text="关闭"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/tv_connState"
         android:layout_width="match_parent"

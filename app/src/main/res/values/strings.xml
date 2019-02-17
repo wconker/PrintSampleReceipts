@@ -19,10 +19,10 @@
         <item>115200</item>
     </string-array>
     <string name="str_no_serialport">Do not support serial port</string>
-    <string name="str_conn_state_disconnect">连接状态: 无法连接</string>
-    <string name="str_conn_state_connecting">连接状态: 连接中</string>
+    <string name="str_conn_state_disconnect">打印机: 断开</string>
+    <string name="str_conn_state_connecting">打印机: 连接中</string>
     <string name="str_connecting">connecting</string>
-    <string name="str_conn_state_connected">连接状态:连接</string>
+    <string name="str_conn_state_connected">打印机:连接</string>
     <string name="str_wifi_ip">请输入IP:</string>
     <string name="str_ip">IP: </string>
     <string name="str_port">Port: </string>

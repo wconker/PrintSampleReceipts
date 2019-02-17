@@ -228,6 +228,22 @@ public class BluetoothDeviceList extends Activity {
 
             //   PairedDevice(devicesList.get(arg2));
 
+
+            Method creMethod = null;
+            try {
+                creMethod = BluetoothDevice.class
+                        .getMethod("createBond");
+                Log.e("TAG", "开始配对");
+                creMethod.invoke(devicesList.get(arg2));
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+
             if (!info.equals(noDevices) && !info.equals(noNewDevice)) {
                 String address = info.substring(info.length() - 17);
                 // 创建结果意图并包含MAC地址
